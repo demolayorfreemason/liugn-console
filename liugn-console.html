@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:," />
+    <title>LIUGN Console — Sanctum Edition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;900&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2rem; }
+
+      :root{
+        --bg:#070605;
+        --bg2:#0d0b08;
+        --panel:#12100c;
+        --panel2:#171410;
+        --line:#2b2417;
+        --line-soft:#1e1a12;
+        --gold:#c9a227;
+        --gold-hi:#f0d47a;
+        --gold-deep:#8a6d14;
+        --gold-dim:#6f5c22;
+        --ink:#f2ead6;
+        --ink-2:#c9bfa5;
+        --ink-3:#8d8268;
+        --accent:#c9a227;
+        --accent-hi:#f0d47a;
+        --accent-deep:#8a6d14;
+        --console-body:#14120e;
+        --console-face:#1c1913;
+        --radius:14px;
+      }
+      *{ box-sizing:border-box; }
+      html{ scroll-behavior:smooth; }
+      body{
+        margin:0;
+        background:
+          radial-gradient(1100px 500px at 50% -120px, rgba(201,162,39,.10), transparent 60%),
+          var(--bg);
+        color:var(--ink);
+        font-family:"Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height:1.55;
+        -webkit-font-smoothing:antialiased;
+      }
+      h1,h2,h3,.serif{ font-family:"Cinzel", Georgia, serif; }
+      a{ color:var(--gold-hi); }
+      .wrap{ max-width:1180px; margin:0 auto; padding:0 20px; }
+
+      /* ---------- top strip ---------- */
+      .topstrip{
+        border-bottom:1px solid var(--line-soft);
+        background:rgba(7,6,5,.85);
+        position:sticky; top:0; z-index:40; backdrop-filter:blur(8px);
+      }
+      .topstrip .wrap{ display:flex; align-items:center; gap:18px; padding-top:10px; padding-bottom:10px; flex-wrap:wrap; }
+      .brand{ display:flex; align-items:center; gap:12px; }
+      .brand svg{ flex:none; }
+      .brand .bname{ font-family:"Cinzel",serif; font-weight:700; letter-spacing:.22em; font-size:15px; color:var(--ink); }
+      .brand .bsub{ font-size:11px; letter-spacing:.28em; color:var(--gold); text-transform:uppercase; }
+      nav.topnav{ margin-left:auto; display:flex; gap:4px; flex-wrap:wrap; }
+      nav.topnav a{
+        color:var(--ink-2); text-decoration:none; font-size:13px; font-weight:600;
+        padding:9px 12px; border-radius:8px; min-height:36px; display:inline-flex; align-items:center;
+      }
+      nav.topnav a:hover{ color:var(--gold-hi); background:rgba(201,162,39,.08); }
+
+      /* ---------- hero ---------- */
+      .hero{ padding:56px 0 30px; text-align:center; }
+      .hero .rule{ display:flex; align-items:center; gap:14px; justify-content:center; color:var(--gold); margin-bottom:20px; }
+      .hero .rule .ln{ height:1px; width:min(120px,22vw); background:linear-gradient(90deg, transparent, var(--gold-dim)); }
+      .hero .rule .ln.r{ background:linear-gradient(90deg, var(--gold-dim), transparent); }
+      .hero h1{ font-size:clamp(38px,7vw,72px); font-weight:900; letter-spacing:.08em; margin:0; line-height:1.05; }
+      .hero h1 .glyphs{ display:block; font-size:.52em; letter-spacing:.35em; color:var(--gold); font-weight:700; margin-top:10px; }
+      .hero p.lede{ max-width:640px; margin:20px auto 0; color:var(--ink-2); font-size:17px; }
+      .hero .cta-row{ display:flex; gap:12px; justify-content:center; margin-top:26px; flex-wrap:wrap; }
+      .btn{
+        font:inherit; font-weight:700; font-size:14px; cursor:pointer;
+        border-radius:10px; padding:11px 20px; min-height:44px;
+        border:1px solid var(--gold-deep); background:linear-gradient(180deg,#e8c95c,#b98f1d);
+        color:#191304; letter-spacing:.04em;
+      }
+      .btn:hover{ filter:brightness(1.07); }
+      .btn.ghost{ background:transparent; color:var(--gold-hi); border-color:var(--line); }
+      .btn.ghost:hover{ border-color:var(--gold-deep); background:rgba(201,162,39,.07); }
+      .btn[aria-pressed="true"]{ outline:2px solid var(--gold-hi); outline-offset:2px; }
+
+      /* ---------- stage ---------- */
+      .stage{
+        margin:38px auto 0; max-width:980px;
+        background:
+          radial-gradient(700px 260px at 50% 88%, rgba(201,162,39,.13), transparent 65%),
+          linear-gradient(180deg, var(--bg2), #090807);
+        border:1px solid var(--line-soft); border-radius:20px;
+        padding:34px 18px 10px; position:relative; overflow:hidden;
+      }
+      .stage .floor{
+        position:absolute; left:6%; right:6%; bottom:34px; height:2px;
+        background:linear-gradient(90deg, transparent, rgba(201,162,39,.5), transparent);
+      }
+      .stage-grid{ display:grid; grid-template-columns:1fr 300px; gap:8px; align-items:end; position:relative; }
+      .console-holder{ display:flex; justify-content:center; }
+      .console-holder svg{ width:min(430px, 88vw); height:auto; display:block; }
+      .pad-holder{ display:flex; justify-content:center; padding-bottom:26px; }
+      .pad-holder svg{ width:min(300px, 70vw); height:auto; display:block; filter:drop-shadow(0 18px 22px rgba(0,0,0,.55)); }
+
+      .stage-controls{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; padding:20px 0 22px; position:relative; }
+      .seg{ display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+      .seg button{
+        font:inherit; font-size:13px; font-weight:700; cursor:pointer; min-height:44px;
+        background:var(--panel); color:var(--ink-2); border:0; padding:10px 16px;
+      }
+      .seg button + button{ border-left:1px solid var(--line-soft); }
+      .seg button[aria-pressed="true"]{ background:linear-gradient(180deg,#e8c95c,#b98f1d); color:#191304; }
+      .power-note{ text-align:center; color:var(--ink-3); font-size:13px; padding-bottom:20px; margin:0; }
+      .power-note b{ color:var(--gold-hi); font-weight:700; }
+
+      /* LED + boot states */
+      .led{ fill:#3a2f14; transition:fill .4s; }
+      .emblem-glow{ opacity:0; transition:opacity .8s; }
+      .disc-glow{ opacity:0; transition:opacity .8s; }
+      body.powered .led{ fill:var(--accent-hi); }
+      body.powered .emblem-glow{ opacity:1; }
+      body.powered .disc-glow{ opacity:.9; }
+      .fan{ transform-origin:center; transform-box:fill-box; }
+      body.powered .fan{ animation:spin 2.6s linear infinite; }
+      @keyframes spin{ to{ transform:rotate(360deg); } }
+      @media (prefers-reduced-motion: reduce){
+        body.powered .fan{ animation:none; }
+        html{ scroll-behavior:auto; }
+      }
+
+      /* ---------- sections ---------- */
+      section.block{ padding:64px 0 8px; }
+      .sec-head{ display:flex; align-items:baseline; gap:16px; margin-bottom:8px; flex-wrap:wrap; }
+      .sec-head h2{ font-size:clamp(24px,3.6vw,34px); font-weight:700; letter-spacing:.05em; margin:0; }
+      .sec-head .no{ font-family:"Cinzel",serif; color:var(--gold); font-size:15px; letter-spacing:.2em; }
+      .sec-sub{ color:var(--ink-2); max-width:680px; margin:0 0 26px; }
+
+      .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+      .grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+      .card{
+        background:linear-gradient(180deg, var(--panel2), var(--panel));
+        border:1px solid var(--line-soft); border-radius:var(--radius); padding:22px;
+      }
+      .card h3{ margin:0 0 8px; font-size:18px; letter-spacing:.04em; }
+      .card p{ margin:0; color:var(--ink-2); font-size:15px; }
+      .card .ic{ color:var(--gold); margin-bottom:12px; }
+      .card .ic svg{ display:block; }
+
+      /* emblem anatomy */
+      .anatomy{ display:grid; grid-template-columns:340px 1fr; gap:30px; align-items:center; }
+      .anatomy .emblem-big{ display:flex; justify-content:center; }
+      .anatomy .emblem-big svg{ width:min(320px,80vw); height:auto; }
+      .callouts{ display:grid; gap:12px; }
+      .callout{ display:flex; gap:14px; align-items:flex-start; background:var(--panel); border:1px solid var(--line-soft); border-radius:12px; padding:14px 16px; }
+      .callout .n{
+        flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--gold-deep);
+        color:var(--gold-hi); font-family:"Cinzel",serif; font-weight:700; font-size:14px;
+        display:flex; align-items:center; justify-content:center; margin-top:1px;
+      }
+      .callout h3{ margin:0 0 3px; font-size:16px; }
+      .callout p{ margin:0; color:var(--ink-2); font-size:14px; }
+
+      /* hotspots */
+      .hot-layout{ display:grid; grid-template-columns:1.25fr 1fr; gap:26px; align-items:start; }
+      .hot-stage{ background:linear-gradient(180deg,var(--bg2),#090807); border:1px solid var(--line-soft); border-radius:16px; padding:22px 12px; display:flex; justify-content:center; }
+      .hot-stage svg{ width:min(480px,86vw); height:auto; display:block; }
+      .hot-btn{ cursor:pointer; }
+      .hot-btn circle.ring{ fill:rgba(7,6,5,.72); stroke:var(--gold); stroke-width:1.6; }
+      .hot-btn text{ fill:var(--gold-hi); font-family:"Cinzel",serif; font-weight:700; font-size:13px; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+      .hot-btn:hover circle.ring, .hot-btn.active circle.ring{ fill:var(--gold); }
+      .hot-btn:hover text, .hot-btn.active text{ fill:#191304; }
+      .hot-btn:focus-visible{ outline:none; }
+      .hot-btn:focus-visible circle.ring{ stroke:var(--gold-hi); stroke-width:2.6; }
+      .hot-panel{ background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--radius); padding:22px; min-height:190px; }
+      .hot-panel h3{ margin:0 0 8px; font-size:19px; }
+      .hot-panel p{ margin:0; color:var(--ink-2); font-size:15px; }
+      .hot-panel .tag{ display:inline-block; font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); border:1px solid var(--line); border-radius:999px; padding:4px 10px; margin-bottom:12px; }
+
+      /* home screen */
+      .tv{
+        border:1px solid var(--line); border-radius:18px; padding:12px;
+        background:linear-gradient(180deg,#1a1712,#0b0a08);
+        box-shadow:0 30px 60px rgba(0,0,0,.5);
+      }
+      .screen{
+        border-radius:10px; overflow:hidden; position:relative;
+        background:
+          radial-gradient(800px 300px at 50% -60px, rgba(201,162,39,.16), transparent 60%),
+          linear-gradient(180deg,#0c0a07,#070605);
+        min-height:430px; padding:22px;
+      }
+      .screen .os-top{ display:flex; align-items:center; gap:12px; margin-bottom:18px; }
+      .screen .os-top .who{ display:flex; align-items:center; gap:10px; }
+      .avatar-dot{
+        width:38px; height:38px; border-radius:50%; flex:none;
+        background:radial-gradient(circle at 35% 30%, #3a2f14, #141007);
+        border:1px solid var(--gold-deep); display:flex; align-items:center; justify-content:center;
+        font-family:"Cinzel",serif; color:var(--gold-hi); font-weight:700; font-size:15px;
+      }
+      .screen .os-top .who b{ display:block; font-size:14px; }
+      .screen .os-top .who span{ font-size:12px; color:var(--ink-3); }
+      .screen .clock{ margin-left:auto; text-align:right; }
+      .screen .clock b{ font-family:"Cinzel",serif; font-size:19px; letter-spacing:.06em; }
+      .screen .clock span{ display:block; font-size:11px; color:var(--ink-3); letter-spacing:.14em; text-transform:uppercase; }
+      .bootline{ font-size:12px; letter-spacing:.24em; text-transform:uppercase; color:var(--gold); margin:0 0 14px; display:flex; align-items:center; gap:10px; }
+      .bootline::after{ content:""; flex:1; height:1px; background:var(--line); }
+      .tiles{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+      .tile{
+        font:inherit; text-align:left; cursor:pointer; color:var(--ink);
+        background:linear-gradient(180deg,#171410,#100e0a); border:1px solid var(--line-soft);
+        border-radius:12px; padding:14px; min-height:118px; display:flex; flex-direction:column; gap:8px;
+      }
+      .tile:hover{ border-color:var(--gold-deep); }
+      .tile[aria-selected="true"]{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold), 0 10px 26px rgba(0,0,0,.5); background:linear-gradient(180deg,#1d1912,#12100b); }
+      .tile .tart{ height:40px; display:flex; align-items:flex-end; color:var(--gold); }
+      .tile b{ font-size:14px; line-height:1.3; }
+      .tile span{ font-size:11.5px; color:var(--ink-3); letter-spacing:.08em; text-transform:uppercase; }
+      .tile.hero-tile{ grid-column:span 2; }
+      .os-detail{
+        margin-top:14px; border:1px solid var(--line-soft); border-radius:12px; background:rgba(18,16,12,.85);
+        padding:16px 18px; display:flex; gap:18px; align-items:center; flex-wrap:wrap;
+      }
+      .os-detail .txt{ flex:1 1 260px; }
+      .os-detail h3{ margin:0 0 4px; font-size:19px; }
+      .os-detail p{ margin:0; color:var(--ink-2); font-size:14px; }
+      .os-detail .meta{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+      .chip{ font-size:11.5px; font-weight:700; letter-spacing:.06em; color:var(--gold-hi); border:1px solid var(--line); padding:5px 10px; border-radius:999px; }
+      .os-nav{ display:flex; gap:8px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+      .os-nav .hint{ color:var(--ink-3); font-size:12.5px; margin-left:4px; }
+      .navbtn{
+        font:inherit; font-weight:700; font-size:13px; cursor:pointer; min-height:40px; padding:8px 14px;
+        border-radius:9px; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+      }
+      .navbtn:hover{ border-color:var(--gold-deep); color:var(--gold-hi); }
+
+      /* specs */
+      .spec-table{ width:100%; border-collapse:collapse; font-size:15px; }
+      .spec-table th, .spec-table td{ text-align:left; padding:13px 14px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+      .spec-table th{ width:210px; color:var(--gold-hi); font-family:"Cinzel",serif; font-size:13.5px; letter-spacing:.1em; font-weight:700; }
+      .spec-table td{ color:var(--ink-2); }
+      .spec-table td b{ color:var(--ink); }
+      .spec-wrap{ background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--radius); overflow:hidden; }
+      .spec-note{ padding:14px 16px; color:var(--ink-3); font-size:13px; border-top:1px solid var(--line-soft); background:var(--panel2); }
+
+      /* editions */
+      .editions{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+      .edition{ border:1px solid var(--line-soft); border-radius:var(--radius); padding:20px; background:var(--panel); }
+      .edition .swatch{ height:64px; border-radius:10px; margin-bottom:14px; border:1px solid var(--line-soft); position:relative; overflow:hidden; }
+      .edition h3{ margin:0 0 6px; font-size:17px; }
+      .edition p{ margin:0 0 14px; color:var(--ink-2); font-size:14px; }
+      .edition .price{ font-family:"Cinzel",serif; font-size:20px; color:var(--gold-hi); }
+
+      /* roadmap */
+      .steps{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; counter-reset:step; }
+      .step{ background:var(--panel); border:1px solid var(--line-soft); border-radius:var(--radius); padding:20px; }
+      .step .sn{ font-family:"Cinzel",serif; color:var(--gold); font-size:13px; letter-spacing:.2em; margin-bottom:8px; }
+      .step h3{ margin:0 0 6px; font-size:16.5px; }
+      .step p{ margin:0; color:var(--ink-2); font-size:14px; }
+
+      footer{ margin-top:70px; border-top:1px solid var(--line-soft); padding:30px 0 44px; text-align:center; }
+      footer .fmark{ display:flex; justify-content:center; margin-bottom:12px; }
+      footer p{ color:var(--ink-3); font-size:13px; margin:4px 0; }
+      footer .fname{ font-family:"Cinzel",serif; letter-spacing:.3em; color:var(--gold); font-size:14px; }
+
+      @media (max-width:900px){
+        .stage-grid{ grid-template-columns:1fr; }
+        .pad-holder{ padding-bottom:8px; }
+        .grid2,.grid3,.editions,.steps{ grid-template-columns:1fr; }
+        .anatomy{ grid-template-columns:1fr; }
+        .hot-layout{ grid-template-columns:1fr; }
+        .tiles{ grid-template-columns:repeat(2,1fr); }
+        .tile.hero-tile{ grid-column:span 2; }
+        .spec-table th{ width:130px; }
+        .hero{ padding-top:38px; }
+        section.block{ padding-top:48px; }
+      }
+      /* ---------- login gate ---------- */
+      body.locked{ overflow:hidden; }
+      body.locked > header, body.locked > main{ display:none !important; }
+      body:not(.locked) .login-gate{ display:none; }
+      .login-gate{
+        position:fixed; inset:0; z-index:100; overflow-y:auto;
+        display:flex; align-items:center; justify-content:center; padding:24px 18px;
+        background:
+          radial-gradient(900px 420px at 50% -80px, rgba(201,162,39,.12), transparent 60%),
+          var(--bg);
+      }
+      .login-card{
+        width:min(430px,100%); text-align:center;
+        background:linear-gradient(180deg, var(--panel2), var(--panel));
+        border:1px solid var(--line); border-radius:16px; padding:34px 30px 28px;
+        box-shadow:0 30px 60px rgba(0,0,0,.55);
+      }
+      .login-card .login-mark{ display:flex; justify-content:center; margin-bottom:14px; color:var(--gold); }
+      .login-eyebrow{ margin:0 0 8px; font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); font-weight:700; }
+      .login-card h2{ margin:0; font-size:28px; letter-spacing:.06em; line-height:1.15; }
+      .login-card .login-sub{ margin:10px 0 0; color:var(--ink-2); font-size:14.5px; }
+      .login-form{ margin-top:24px; display:grid; gap:16px; text-align:left; }
+      .login-field label{ display:block; font-size:12px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-hi); margin-bottom:7px; }
+      .login-field input{
+        width:100%; font:inherit; font-size:15px; color:var(--ink);
+        background:#0b0a08; border:1px solid var(--line); border-radius:10px;
+        padding:12px 14px; min-height:48px; outline:none;
+      }
+      .login-field input:focus{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold); }
+      .login-field input:disabled{ opacity:.55; cursor:not-allowed; }
+      .login-msg{ margin:0; min-height:22px; font-size:14.5px; font-weight:700; color:#f2a193; text-align:center; }
+      .login-msg:empty{ display:none; }
+      .login-btn{ width:100%; margin-top:2px; }
+      .login-btn:disabled{ opacity:.55; cursor:not-allowed; filter:none; }
+      .login-note{ margin:16px 0 0; color:var(--ink-3); font-size:12.5px; text-align:center; }
+    </style>
+  </head>
+  <body class="locked">
+
+    <!-- LOGIN GATE -->
+    <div class="login-gate" id="loginGate" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <div class="login-card">
+        <div class="login-mark" aria-hidden="true">
+          <svg width="54" height="46" viewBox="-120 -100 240 200"><use href="#sanctum-emblem"/></svg>
+        </div>
+        <p class="login-eyebrow">Restricted Access</p>
+        <h2 id="loginTitle">LIUGN Console</h2>
+        <p class="login-sub">Sign in to enter the console.</p>
+        <form class="login-form" id="loginForm" novalidate>
+          <div class="login-field">
+            <label for="loginUser">Username</label>
+            <input id="loginUser" name="username" type="email" autocomplete="username" placeholder="Email address" required />
+          </div>
+          <div class="login-field">
+            <label for="loginPass">Password</label>
+            <input id="loginPass" name="password" type="password" autocomplete="current-password" placeholder="Password" required />
+          </div>
+          <p class="login-msg" id="loginMsg" role="alert" aria-live="assertive"></p>
+          <button class="btn login-btn" id="loginBtn" type="submit">Sign In</button>
+        </form>
+        <p class="login-note">Authorized access only. Three failed attempts will lock this login.</p>
+      </div>
+    </div>
+
+    <!-- Shared emblem definition, drawn from the real Sanctum pendant: a diamond sword
+         standing point-down between two cracked stone pillars, gold flowers at the base -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <defs>
+        <g id="sanctum-emblem">
+          <!-- cracked stone pillars (pale stone, as on the pendant) -->
+          <g fill="none" stroke="#d9d2bd" stroke-width="5">
+            <path d="M-74 -52 h48 M-70 -38 v96 M-42 -38 v96 M-74 72 h48"/>
+            <path d="M26 -52 h48 M30 -38 v96 M58 -38 v96 M26 72 h48"/>
+          </g>
+          <g fill="none" stroke="#d9d2bd" stroke-width="2.6">
+            <path d="M-56 -26 l9 14 l-11 13 l8 16 l-6 14"/>
+            <path d="M44 -30 l-8 13 l10 12 l-7 15"/>
+          </g>
+          <!-- the sword, standing vertical, point down -->
+          <g stroke="currentColor">
+            <circle cx="0" cy="-80" r="6.5" fill="currentColor" stroke="none"/>
+            <path d="M-5 -72 v16 M5 -72 v16" fill="none" stroke-width="4"/>
+            <path d="M-30 -50 h60 M-30 -50 l-7 6 l7 6 M30 -50 l7 6 l-7 6" fill="none" stroke-width="5"/>
+            <path d="M-8 -40 L8 -40 L0 88 Z" fill="none" stroke-width="4.5"/>
+            <path d="M0 -40 V74" fill="none" stroke-width="2"/>
+          </g>
+          <g fill="currentColor">
+            <path d="M0 -30 l4.5 6 l-4.5 6 l-4.5 -6 z"/>
+            <path d="M0 -8 l4.5 6 l-4.5 6 l-4.5 -6 z" opacity=".85"/>
+            <path d="M0 14 l4.5 6 l-4.5 6 l-4.5 -6 z" opacity=".7"/>
+          </g>
+          <!-- gold flowers bunched at the base, around the sword's point -->
+          <g fill="currentColor">
+            <path d="M-24 66 c-7 -9 -4 -18 3 -20 c1 6 3 9 7 12 c-4 2 -7 5 -10 8 Z"/>
+            <path d="M24 66 c7 -9 4 -18 -3 -20 c-1 6 -3 9 -7 12 c4 2 7 5 10 8 Z"/>
+            <path d="M0 52 l5.5 8 l-5.5 8 l-5.5 -8 Z"/>
+            <path d="M-15 74 l4.5 6.5 l-4.5 6.5 l-4.5 -6.5 Z" opacity=".8"/>
+            <path d="M15 74 l4.5 6.5 l-4.5 6.5 l-4.5 -6.5 Z" opacity=".8"/>
+            <path d="M0 76 l5 7.5 l-5 7.5 l-5 -7.5 Z"/>
+          </g>
+        </g>
+        <linearGradient id="goldgrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f0d47a"/>
+          <stop offset=".55" stop-color="#c9a227"/>
+          <stop offset="1" stop-color="#8a6d14"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <header class="topstrip">
+      <div class="wrap">
+        <div class="brand">
+          <svg width="34" height="34" viewBox="-120 -100 240 200" style="color:var(--gold)" aria-hidden="true"><use href="#sanctum-emblem"/></svg>
+          <div>
+            <div class="bname">LIUGN</div>
+            <div class="bsub">Console · Sanctum</div>
+          </div>
+        </div>
+        <nav class="topnav" aria-label="Page sections">
+          <a href="#device">The Device</a>
+          <a href="#emblem">The Emblem</a>
+          <a href="#controller">Controller</a>
+          <a href="#home">Home Screen</a>
+          <a href="#specs">Specs</a>
+          <a href="#editions">Editions</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+
+      <!-- HERO -->
+      <div class="hero">
+        <div class="rule" aria-hidden="true">
+          <span class="ln"></span>
+          <svg width="20" height="20" viewBox="-12 -12 24 24"><path d="M0 -10 L7 0 L0 10 L-7 0 Z" fill="#c9a227"/></svg>
+          <span class="ln r"></span>
+        </div>
+        <h1>LIUGN CONSOLE<span class="glyphs">𐌻𐌹𐌿𐌲𐌽</span></h1>
+        <p class="lede">A home console built for one world: <strong>Liugn — 𐌻𐌹𐌿𐌲𐌽</strong>. Black stone, real gold, and the Sanctum mark — a diamond sword standing between two cracked stone pillars, gold flowers at its feet — cut into the face of the machine. Power it on and it boots straight into Tab Atlanta.</p>
+        <div class="cta-row">
+          <button class="btn" id="powerBtn" aria-pressed="false">Power On</button>
+          <a class="btn ghost" href="#home" style="text-decoration:none; display:inline-flex; align-items:center;">See the home screen</a>
+        </div>
+      </div>
+
+      <!-- STAGE -->
+      <div class="stage" id="device">
+        <div class="stage-grid">
+          <div class="console-holder">
+            <!-- CONSOLE -->
+            <svg viewBox="0 0 460 560" role="img" aria-label="The LIUGN console: a tall black tower with gold trim, the Sanctum emblem on its face, a vertical disc slot and a gold power light">
+              <ellipse cx="230" cy="528" rx="180" ry="16" fill="#000" opacity=".55"/>
+              <!-- tower body -->
+              <path d="M128 60 L332 60 L348 500 Q349 516 333 516 L127 516 Q111 516 112 500 Z" fill="var(--console-body)" stroke="#000" stroke-width="2"/>
+              <path d="M128 60 L332 60 L340 200 L120 200 Z" fill="var(--console-face)" opacity=".55"/>
+              <!-- gold pinstripes -->
+              <path d="M146 66 L138 510" stroke="var(--accent)" stroke-width="3" opacity=".9"/>
+              <path d="M314 66 L322 510" stroke="var(--accent)" stroke-width="3" opacity=".9"/>
+              <path d="M124 84 L336 84" stroke="var(--accent-deep)" stroke-width="2"/>
+              <!-- top vent -->
+              <g stroke="#000" stroke-width="5" opacity=".8">
+                <path d="M168 40 h124 M176 28 h108" />
+              </g>
+              <path d="M160 48 h140" stroke="var(--accent)" stroke-width="2"/>
+              <!-- emblem glow layer -->
+              <g class="emblem-glow" style="color:var(--accent-hi)" transform="translate(230 218) scale(0.92)">
+                <use href="#sanctum-emblem" style="filter:drop-shadow(0 0 14px rgba(240,212,122,.85))"/>
+              </g>
+              <!-- emblem -->
+              <g style="color:var(--accent)" transform="translate(230 218) scale(0.92)">
+                <use href="#sanctum-emblem"/>
+              </g>
+              <text x="230" y="352" text-anchor="middle" font-family="Cinzel, serif" font-weight="700" font-size="27" letter-spacing="8" fill="url(#goldgrad)">SANCTUM</text>
+              <text x="230" y="378" text-anchor="middle" font-family="Cinzel, serif" font-size="12.5" letter-spacing="6" fill="var(--ink-3)">LIUGN CONSOLE</text>
+              <!-- disc slot -->
+              <rect x="222" y="404" width="16" height="76" rx="8" fill="#000"/>
+              <rect class="disc-glow" x="222" y="404" width="16" height="76" rx="8" fill="none" stroke="var(--accent-hi)" stroke-width="2"/>
+              <!-- fan ring -->
+              <g transform="translate(168 442)">
+                <circle r="21" fill="#0a0908" stroke="var(--accent-deep)" stroke-width="2"/>
+                <g class="fan" stroke="var(--accent)" stroke-width="3">
+                  <path d="M0 0 L0 -15 M0 0 L13 8 M0 0 L-13 8"/>
+                </g>
+                <circle r="3.5" fill="var(--accent)"/>
+              </g>
+              <!-- power LED + button -->
+              <circle class="led" cx="292" cy="442" r="6"/>
+              <circle cx="292" cy="442" r="13" fill="none" stroke="var(--accent-deep)" stroke-width="1.6"/>
+              <!-- base plinth -->
+              <path d="M104 516 h252 l10 18 q1 8 -8 8 h-256 q-9 0 -8 -8 Z" fill="#0b0a08" stroke="var(--accent-deep)" stroke-width="1.6"/>
+              <path d="M112 524 h236" stroke="var(--accent)" stroke-width="2" opacity=".8"/>
+              <!-- diamond flowers on plinth -->
+              <g fill="var(--accent)">
+                <path d="M230 528 l5 6 l-5 6 l-5 -6 z"/>
+                <path d="M196 530 l3.6 4.4 l-3.6 4.4 l-3.6 -4.4 z" opacity=".7"/>
+                <path d="M264 530 l3.6 4.4 l-3.6 4.4 l-3.6 -4.4 z" opacity=".7"/>
+              </g>
+            </svg>
+          </div>
+          <div class="pad-holder">
+            <!-- CONTROLLER (stage, small) -->
+            <svg viewBox="0 0 340 230" role="img" aria-label="The LIUGN controller: black with gold sticks, buttons and the Sanctum emblem in the center">
+              <path d="M60 60 Q170 30 280 60 Q322 74 330 128 Q336 176 306 190 Q272 205 238 158 Q226 142 170 142 Q114 142 102 158 Q68 205 34 190 Q4 176 10 128 Q18 74 60 60 Z" fill="#14120e" stroke="#000" stroke-width="2"/>
+              <path d="M60 60 Q170 30 280 60" fill="none" stroke="var(--accent)" stroke-width="3"/>
+              <g style="color:var(--accent)" transform="translate(170 88) scale(0.30)"><use href="#sanctum-emblem"/></g>
+              <!-- dpad -->
+              <g fill="#0a0908" stroke="var(--accent-deep)" stroke-width="1.6">
+                <rect x="66" y="96" width="16" height="46" rx="3"/>
+                <rect x="51" y="111" width="46" height="16" rx="3"/>
+              </g>
+              <!-- left stick -->
+              <circle cx="128" cy="140" r="17" fill="#0a0908" stroke="var(--accent)" stroke-width="2.4"/>
+              <circle cx="128" cy="140" r="8" fill="var(--accent-deep)"/>
+              <!-- right stick -->
+              <circle cx="212" cy="140" r="17" fill="#0a0908" stroke="var(--accent)" stroke-width="2.4"/>
+              <circle cx="212" cy="140" r="8" fill="var(--accent-deep)"/>
+              <!-- ABXY -->
+              <g font-family="Manrope, sans-serif" font-size="10.5" font-weight="800" text-anchor="middle">
+                <circle cx="272" cy="96" r="11" fill="#0a0908" stroke="var(--accent)" stroke-width="1.8"/><text x="272" y="100" fill="var(--accent-hi)">Y</text>
+                <circle cx="250" cy="118" r="11" fill="#0a0908" stroke="var(--accent)" stroke-width="1.8"/><text x="250" y="122" fill="var(--accent-hi)">X</text>
+                <circle cx="294" cy="118" r="11" fill="#0a0908" stroke="var(--accent)" stroke-width="1.8"/><text x="294" y="122" fill="var(--accent-hi)">B</text>
+                <circle cx="272" cy="140" r="11" fill="var(--accent)" stroke="var(--accent-deep)" stroke-width="1.8"/><text x="272" y="144" fill="#191304">A</text>
+              </g>
+              <circle class="led" cx="170" cy="126" r="3.6"/>
+            </svg>
+          </div>
+        </div>
+        <div class="floor" aria-hidden="true"></div>
+        <div class="stage-controls">
+          <div class="seg" role="group" aria-label="Console finish">
+            <button type="button" data-finish="sanctum" aria-pressed="true">Sanctum Gold</button>
+            <button type="button" data-finish="bone" aria-pressed="false">Bone Mountain</button>
+            <button type="button" data-finish="storm" aria-pressed="false">Storm</button>
+          </div>
+        </div>
+        <p class="power-note" id="powerNote">The machine is asleep. Press <b>Power On</b> — watch the emblem light, the disc slot glow, and the fan start to turn.</p>
+      </div>
+
+      <!-- DESIGN LANGUAGE -->
+      <section class="block" id="design">
+        <div class="sec-head"><span class="no">I.</span><h2>Built Like the Mark</h2></div>
+        <p class="sec-sub">Every line of the hardware follows the Sanctum design — the same gold-on-black language carried on the XID-001 car and bike. Nothing chrome, nothing plastic-looking: black stone, cut gold, and the emblem doing the talking.</p>
+        <div class="grid3">
+          <div class="card">
+            <div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 20 L18 6 M18 6 l3 -3 l-1 4 M5 15 l4 4 M3 21 l3 -3"/></svg></div>
+            <h3>Gold on Black, Always</h3>
+            <p>A matte black tower with hand-laid gold pinstripes and a gold-leaf wordmark. The finish matches the Sanctum cars and bikes, so the console, the rides, and the church all read as one family.</p>
+          </div>
+          <div class="card">
+            <div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 21 V8 M5 8 l3 -3 M5 12 l2 2 M19 21 V8 M19 8 l-3 -3 M19 13 l-2 2 M2 21 h20"/></svg></div>
+            <h3>Cracked-Pillar Frame</h3>
+            <p>The tower's shoulders step in like the tops of two pillars, and fine crack lines are etched down both front corners — the pillars from the emblem, built into the body of the machine itself.</p>
+          </div>
+          <div class="card">
+            <div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 l4 9 l-4 9 l-4 -9 Z M5 8 l2.5 4 L5 16 M19 8 l-2.5 4 L19 16"/></svg></div>
+            <h3>Diamond Flowers</h3>
+            <p>Golden diamond-shaped flowers run along the base plinth and ring the controller's home button — small, sharp blooms instead of soft petals, cut like gems into the black.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- EMBLEM ANATOMY -->
+      <section class="block" id="emblem">
+        <div class="sec-head"><span class="no">II.</span><h2>Anatomy of the Emblem</h2></div>
+        <p class="sec-sub">The same mark from the car and the bike — the pendant itself: a diamond sword between two cracked stone pillars, hanging from a heavy gold Figaro chain. Enlarged and set into the console's face, it lights from behind when the machine is on, like a sign over a door.</p>
+        <div class="anatomy">
+          <div class="emblem-big">
+            <svg viewBox="-130 -215 260 360" role="img" aria-label="The Sanctum pendant on its gold Figaro chain: a diamond sword standing between two cracked stone pillars, with gold flowers bunched at the base and the word SANCTUM beneath" style="color:var(--gold)">
+              <!-- Figaro chain -->
+              <path d="M-118 -208 Q0 -128 118 -208" fill="none" stroke="url(#goldgrad)" stroke-width="11" stroke-dasharray="17 6" stroke-linecap="round"/>
+              <!-- bail -->
+              <path d="M-9 -146 h18 l-4 20 h-10 Z" fill="url(#goldgrad)"/>
+              <g transform="translate(0 -18)"><use href="#sanctum-emblem"/></g>
+              <text x="0" y="128" text-anchor="middle" font-family="Cinzel, serif" font-weight="700" font-size="24" letter-spacing="7" fill="url(#goldgrad)">SANCTUM</text>
+            </svg>
+          </div>
+          <div class="callouts">
+            <div class="callout"><span class="n">1</span><div><h3>The Chain</h3><p>A heavy gold Figaro chain — long links, then short — with a diamond-set bail. The pendant hangs from it, and on the console the chain arcs over the top of the mark, worked into the tower's crown.</p></div></div>
+            <div class="callout"><span class="n">2</span><div><h3>The Sword</h3><p>A diamond-covered sword standing point-down between the pillars: gold pommel and crossguard up top, baguette diamonds running down the blade, the tip ending in the flowers. On the console it sits at chest height, the first thing you see when the machine wakes.</p></div></div>
+            <div class="callout"><span class="n">3</span><div><h3>Two Cracked Pillars</h3><p>A pair of stone pillars in pale silver-white, paved with small diamonds and each split by a jagged crack running down its face. They frame the sword and give the tower its stepped, temple-front shape.</p></div></div>
+            <div class="callout"><span class="n">4</span><div><h3>The Flowers</h3><p>A bunch of gold flowers gathered at the pillars' feet, around the sword's point — roses and lilies with diamond-shaped petals. They repeat along the console's base plinth and around the controller's sticks.</p></div></div>
+            <div class="callout"><span class="n">5</span><div><h3>The Wordmark</h3><p>SANCTUM in spaced gold capitals under the mark, with LIUGN CONSOLE beneath it in smaller type. The same lettering as the sign on the gothic church in Tab Atlanta.</p></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- DEVICE HOTSPOTS -->
+      <section class="block" id="device-details">
+        <div class="sec-head"><span class="no">III.</span><h2>The Device, Part by Part</h2></div>
+        <p class="sec-sub">Tap a numbered marker on the tower to read what each part does.</p>
+        <div class="hot-layout">
+          <div class="hot-stage">
+            <svg viewBox="0 0 460 560" role="group" aria-label="Console with numbered part markers">
+              <path d="M128 60 L332 60 L348 500 Q349 516 333 516 L127 516 Q111 516 112 500 Z" fill="var(--console-body)" stroke="#000" stroke-width="2"/>
+              <path d="M146 66 L138 510" stroke="var(--accent)" stroke-width="3" opacity=".9"/>
+              <path d="M314 66 L322 510" stroke="var(--accent)" stroke-width="3" opacity=".9"/>
+              <g style="color:var(--accent)" transform="translate(230 218) scale(0.92)"><use href="#sanctum-emblem"/></g>
+              <text x="230" y="352" text-anchor="middle" font-family="Cinzel, serif" font-weight="700" font-size="27" letter-spacing="8" fill="url(#goldgrad)">SANCTUM</text>
+              <rect x="222" y="404" width="16" height="76" rx="8" fill="#000" stroke="var(--accent-deep)"/>
+              <circle cx="292" cy="442" r="6" fill="var(--accent-hi)"/>
+              <path d="M104 516 h252 l10 18 q1 8 -8 8 h-256 q-9 0 -8 -8 Z" fill="#0b0a08" stroke="var(--accent-deep)" stroke-width="1.6"/>
+              <g id="consoleHotspots"></g>
+            </svg>
+          </div>
+          <div class="hot-panel" aria-live="polite">
+            <span class="tag" id="chTag">Part 1 of 6</span>
+            <h3 id="chTitle">Top Vent &amp; Crown</h3>
+            <p id="chBody">The crown of the tower is a stepped vent that breathes heat straight up, edged in a single gold line. It is shaped like the top step of a pillar — the machine wears its emblem even from above.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONTROLLER -->
+      <section class="block" id="controller">
+        <div class="sec-head"><span class="no">IV.</span><h2>The Controller</h2></div>
+        <p class="sec-sub">Laid out the way Liugn — 𐌻𐌹𐌿𐌲𐌽 already plays: left stick to move, right stick to look and orbit the camera, face buttons for jump, interact, vehicle, and powers. Tap a marker to read each control.</p>
+        <div class="hot-layout">
+          <div class="hot-stage">
+            <svg viewBox="0 0 560 380" role="group" aria-label="Controller with numbered control markers">
+              <path d="M96 96 Q280 46 464 96 Q532 118 544 208 Q552 282 494 306 Q440 330 384 252 Q366 226 280 226 Q194 226 176 252 Q120 330 66 306 Q8 282 16 208 Q28 118 96 96 Z" fill="#14120e" stroke="#000" stroke-width="2.5"/>
+              <path d="M96 96 Q280 46 464 96" fill="none" stroke="var(--accent)" stroke-width="4"/>
+              <g style="color:var(--accent)" transform="translate(280 138) scale(0.44)"><use href="#sanctum-emblem"/></g>
+              <g fill="#0a0908" stroke="var(--accent-deep)" stroke-width="2">
+                <rect x="106" y="152" width="26" height="74" rx="4"/>
+                <rect x="82" y="176" width="74" height="26" rx="4"/>
+              </g>
+              <circle cx="206" cy="222" r="27" fill="#0a0908" stroke="var(--accent)" stroke-width="3.4"/>
+              <circle cx="206" cy="222" r="12" fill="var(--accent-deep)"/>
+              <circle cx="352" cy="222" r="27" fill="#0a0908" stroke="var(--accent)" stroke-width="3.4"/>
+              <circle cx="352" cy="222" r="12" fill="var(--accent-deep)"/>
+              <g font-family="Manrope, sans-serif" font-size="16" font-weight="800" text-anchor="middle">
+                <circle cx="440" cy="152" r="17" fill="#0a0908" stroke="var(--accent)" stroke-width="2.4"/><text x="440" y="158" fill="var(--accent-hi)">Y</text>
+                <circle cx="406" cy="186" r="17" fill="#0a0908" stroke="var(--accent)" stroke-width="2.4"/><text x="406" y="192" fill="var(--accent-hi)">X</text>
+                <circle cx="474" cy="186" r="17" fill="#0a0908" stroke="var(--accent)" stroke-width="2.4"/><text x="474" y="192" fill="var(--accent-hi)">B</text>
+                <circle cx="440" cy="220" r="17" fill="var(--accent)" stroke="var(--accent-deep)" stroke-width="2.4"/><text x="440" y="226" fill="#191304">A</text>
+              </g>
+              <circle cx="280" cy="196" r="5" fill="var(--accent-hi)"/>
+              <g id="padHotspots"></g>
+            </svg>
+          </div>
+          <div class="hot-panel" aria-live="polite">
+            <span class="tag" id="phTag">Control 1 of 6</span>
+            <h3 id="phTitle">Left Stick — Move</h3>
+            <p id="phBody">Fast, GTA-paced movement: walk, push to run, click to sprint. The stick is ringed in gold with a deep-gold cap, tuned so the character never feels slow or stuttery on foot.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- HOME SCREEN -->
+      <section class="block" id="home">
+        <div class="sec-head"><span class="no">V.</span><h2>The Home Screen</h2></div>
+        <p class="sec-sub">What the TV shows when the console wakes: HIM's profile up top, Liugn — 𐌻𐌹𐌿𐌲𐌽 front and center, and the whole 44bussin library on the shelf below it. Pick a tile — or use the arrow keys — to preview each game.</p>
+        <div class="tv">
+          <div class="screen">
+            <div class="os-top">
+              <div class="who">
+                <div class="avatar-dot" aria-hidden="true">H</div>
+                <div><b>HIM</b><span>Tab Atlanta · Level 12</span></div>
+              </div>
+              <div class="clock"><b id="osClock">--:--</b><span id="osDate">Console Home</span></div>
+            </div>
+            <p class="bootline">Sanctum OS · Library</p>
+            <div class="tiles" id="tiles" role="listbox" aria-label="Game library"></div>
+            <div class="os-detail">
+              <div class="txt">
+                <h3 id="osTitle">Liugn — 𐌻𐌹𐌿𐌲𐌽</h3>
+                <p id="osDesc"></p>
+                <div class="meta" id="osMeta"></div>
+              </div>
+              <button class="btn" id="osLaunch" type="button">Launch</button>
+            </div>
+            <div class="os-nav">
+              <button class="navbtn" id="osPrev" type="button">← Prev</button>
+              <button class="navbtn" id="osNext" type="button">Next →</button>
+              <span class="hint">Tip: click a tile, or focus the shelf and use ← → arrow keys.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SPECS -->
+      <section class="block" id="specs">
+        <div class="sec-head"><span class="no">VI.</span><h2>Design Targets</h2></div>
+        <p class="sec-sub">The numbers this design is specced to hit — a small, quiet box that boots straight into the game and runs it at a smooth 60 frames per second on a TV.</p>
+        <div class="spec-wrap">
+          <table class="spec-table">
+            <tr><th>FORM</th><td><b>Vertical tower</b>, 92 × 310 × 260 mm — stands like a pillar, or lays flat under a TV. Matte black stone-finish shell, gold pinstriping, etched crack lines.</td></tr>
+            <tr><th>DISPLAY OUT</th><td><b>4K at 60 fps</b> target for Liugn — 𐌻𐌹𐌿𐌲𐌽, 1080p high-refresh mode, HDR, one HDMI 2.1 port.</td></tr>
+            <tr><th>STORAGE</th><td><b>1 TB internal SSD</b> — the full game, every arcade title from the library, and room for creator content from LIUGN Cars Studio and Clothes Studio.</td></tr>
+            <tr><th>DISC DRIVE</th><td><b>Vertical slot-load drive</b> in the Sanctum Edition — for a physical demo disc edition of the game. The slot glows gold when a disc is in.</td></tr>
+            <tr><th>CONTROLLER</th><td>Wireless, USB-C charging, <b>~30 hours</b> per charge. Left stick move, right stick look / photo orbit, dedicated buttons for jump, interact, vehicle, and powers.</td></tr>
+            <tr><th>BOOT</th><td><b>Straight into the game.</b> Power on, the emblem lights, and Sanctum OS opens on the library — one press of A and you are standing in Tab Atlanta.</td></tr>
+            <tr><th>SOUND</th><td>3D spatial audio over HDMI or the controller's 3.5 mm jack — thunder you can place in the room when HIM is searching.</td></tr>
+            <tr><th>IN THE BOX</th><td>Console, one Sanctum controller, HDMI cable, power cable, and a printed emblem plate for the tower's face.</td></tr>
+          </table>
+          <p class="spec-note">This page is the design of the device — the look, the controller, and the home screen. A physical console is factory hardware; these are the targets a production version would be built and costed against.</p>
+        </div>
+      </section>
+
+      <!-- EDITIONS -->
+      <section class="block" id="editions">
+        <div class="sec-head"><span class="no">VII.</span><h2>Three Finishes</h2></div>
+        <p class="sec-sub">Pick a finish up top by the console to preview it on the tower. Prices are the design's target shelf prices.</p>
+        <div class="editions">
+          <div class="edition">
+            <div class="swatch" style="background:linear-gradient(120deg,#14120e 55%,#c9a227 55.2%,#f0d47a 62%,#14120e 62.2%);"></div>
+            <h3>Sanctum Gold</h3>
+            <p>The standard. Matte black tower, gold pinstripes, gold-leaf emblem and wordmark. The one that matches the cars and the bike.</p>
+            <div class="price">$399 target</div>
+          </div>
+          <div class="edition">
+            <div class="swatch" style="background:linear-gradient(120deg,#efe9dc 55%,#c9a227 55.2%,#f0d47a 62%,#efe9dc 62.2%);"></div>
+            <h3>Bone Mountain</h3>
+            <p>Bone-white shell the color of the mountain east of Tab Atlanta, with the same gold trim. The emblem is cut in gold over pale stone.</p>
+            <div class="price">$429 target</div>
+          </div>
+          <div class="edition">
+            <div class="swatch" style="background:linear-gradient(120deg,#0d1524 55%,#9fc6e8 55.2%,#e8f4ff 62%,#0d1524 62.2%);"></div>
+            <h3>Storm</h3>
+            <p>Midnight storm-blue black with silver-blue trim — for HIM's thunder. The emblem lights electric white-blue instead of gold when powered.</p>
+            <div class="price">$429 target</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ROADMAP -->
+      <section class="block" id="road">
+        <div class="sec-head"><span class="no">VIII.</span><h2>How a Console Like This Gets Made</h2></div>
+        <p class="sec-sub">The honest road from this design page to a box under a TV.</p>
+        <div class="steps">
+          <div class="step"><div class="sn">STEP 1</div><h3>Design</h3><p>This page: the device, the controller, the emblem, the finishes, and the home screen — the full Sanctum look, locked.</p></div>
+          <div class="step"><div class="sn">STEP 2</div><h3>Prototype</h3><p>A small single-board computer in a 3D-printed Sanctum shell, set to boot straight into the PC build of Liugn — 𐌻𐌹𐌿𐌲𐌽. Playable on a TV with the controller layout above.</p></div>
+          <div class="step"><div class="sn">STEP 3</div><h3>Demo Disc</h3><p>The playable demo path today is PC. A PlayStation disc needs Sony's partner program, a dev kit, and a console port — a bigger, paid step, taken when the game is ready for it.</p></div>
+          <div class="step"><div class="sn">STEP 4</div><h3>Production</h3><p>Injection-molded shells, real boards, safety certification, and factory runs. This is the step where target prices become real prices.</p></div>
+        </div>
+      </section>
+
+      <footer>
+        <div class="fmark">
+          <svg width="52" height="44" viewBox="-120 -100 240 200" style="color:var(--gold)" aria-hidden="true"><use href="#sanctum-emblem"/></svg>
+        </div>
+        <div class="fname">SANCTUM</div>
+        <p>LIUGN Console — a design concept for Liugn — 𐌻𐌹𐌿𐌲𐌽, in the Sanctum gold-on-black language.</p>
+        <p>Tab Atlanta · Hwy 57 · Hwy 58 · Bone Mountain</p>
+      </footer>
+    </main>
+
+    <script>
+      (function(){
+        "use strict";
+
+        /* ---------- Login gate ---------- */
+        var CORRECT_USER = 'demolayorfreemason@gmail.com';
+        var CORRECT_PASS = '1993';
+        var MAX_TRIES = 3;
+        var loginForm = document.getElementById('loginForm');
+        var loginUser = document.getElementById('loginUser');
+        var loginPass = document.getElementById('loginPass');
+        var loginBtn = document.getElementById('loginBtn');
+        var loginMsg = document.getElementById('loginMsg');
+        var loginGate = document.getElementById('loginGate');
+        var tries = 0;
+        var lockedOut = false;
+        if(loginUser) loginUser.focus();
+        loginForm.addEventListener('submit', function(e){
+          e.preventDefault();
+          if(lockedOut) return;
+          var u = (loginUser.value || '').trim().toLowerCase();
+          var p = loginPass.value || '';
+          if(u === CORRECT_USER && p === CORRECT_PASS){
+            loginMsg.textContent = '';
+            document.body.classList.remove('locked');
+            if(loginGate) loginGate.style.display = 'none';
+            return;
+          }
+          tries++;
+          loginPass.value = '';
+          if(tries >= MAX_TRIES){
+            lockedOut = true;
+            loginUser.disabled = true;
+            loginPass.disabled = true;
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Locked Out';
+            loginMsg.textContent = 'Access denied. Login locked — too many failed attempts.';
+          } else {
+            var left = MAX_TRIES - tries;
+            loginMsg.textContent = 'Access denied. ' + left + (left === 1 ? ' attempt' : ' attempts') + ' remaining.';
+            loginPass.focus();
+          }
+        });
+
+        /* ---------- Power ---------- */
+        var powerBtn = document.getElementById('powerBtn');
+        var powerNote = document.getElementById('powerNote');
+        var powered = false;
+        powerBtn.addEventListener('click', function(){
+          powered = !powered;
+          document.body.classList.toggle('powered', powered);
+          powerBtn.setAttribute('aria-pressed', String(powered));
+          powerBtn.textContent = powered ? 'Power Off' : 'Power On';
+          powerNote.innerHTML = powered
+            ? 'She\'s awake — emblem lit, disc slot glowing, fan turning. <b>Sanctum OS is on the home screen below.</b>'
+            : 'The machine is asleep. Press <b>Power On</b> — watch the emblem light, the disc slot glow, and the fan start to turn.';
+        });
+
+        /* ---------- Finishes ---------- */
+        var finishes = {
+          sanctum: { accent:'#c9a227', hi:'#f0d47a', deep:'#8a6d14', body:'#14120e', face:'#1c1913' },
+          bone:    { accent:'#b98f1d', hi:'#e8c95c', deep:'#8a6d14', body:'#e9e2d2', face:'#f4efe2' },
+          storm:   { accent:'#9fc6e8', hi:'#e8f4ff', deep:'#5b84a8', body:'#0d1524', face:'#14203a' }
+        };
+        var finishBtns = document.querySelectorAll('[data-finish]');
+        finishBtns.forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var f = finishes[btn.getAttribute('data-finish')];
+            if(!f) return;
+            var r = document.documentElement.style;
+            r.setProperty('--accent', f.accent);
+            r.setProperty('--accent-hi', f.hi);
+            r.setProperty('--accent-deep', f.deep);
+            r.setProperty('--console-body', f.body);
+            r.setProperty('--console-face', f.face);
+            finishBtns.forEach(function(b){ b.setAttribute('aria-pressed', String(b === btn)); });
+          });
+        });
+
+        /* ---------- Hotspot builder ---------- */
+        function buildHotspots(groupId, items, panel){
+          var g = document.getElementById(groupId);
+          var SVGNS = 'http://www.w3.org/2000/svg';
+          items.forEach(function(it, i){
+            var grp = document.createElementNS(SVGNS, 'g');
+            grp.setAttribute('class', 'hot-btn' + (i === 0 ? ' active' : ''));
+            grp.setAttribute('tabindex', '0');
+            grp.setAttribute('role', 'button');
+            grp.setAttribute('aria-label', it.title);
+            var c = document.createElementNS(SVGNS, 'circle');
+            c.setAttribute('cx', it.x); c.setAttribute('cy', it.y); c.setAttribute('r', 15);
+            c.setAttribute('class', 'ring');
+            var t = document.createElementNS(SVGNS, 'text');
+            t.setAttribute('x', it.x); t.setAttribute('y', it.y + 1);
+            t.textContent = String(i + 1);
+            grp.appendChild(c); grp.appendChild(t);
+            function select(){
+              g.querySelectorAll('.hot-btn').forEach(function(b){ b.classList.remove('active'); });
+              grp.classList.add('active');
+              panel.tag.textContent = panel.tagPrefix + ' ' + (i + 1) + ' of ' + items.length;
+              panel.title.textContent = it.title;
+              panel.body.textContent = it.body;
+            }
+            grp.addEventListener('click', select);
+            grp.addEventListener('keydown', function(e){
+              if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); select(); }
+            });
+            g.appendChild(grp);
+          });
+        }
+
+        buildHotspots('consoleHotspots', [
+          { x:230, y:44,  title:'Top Vent & Crown', body:'The crown of the tower is a stepped vent that breathes heat straight up, edged in a single gold line. It is shaped like the top step of a pillar — the machine wears its emblem even from above.' },
+          { x:230, y:218, title:'The Sanctum Emblem', body:'The pendant itself: a diamond sword standing point-down between two cracked stone pillars, gold flowers bunched at the base — the same mark as the XID-001 car and bike, cut into the face and backlit in gold whenever the console is on.' },
+          { x:352, y:352, title:'Gold Wordmark', body:'SANCTUM in spaced, gold-leaf capitals with LIUGN CONSOLE beneath. No other branding on the front — the mark and the name are the whole face.' },
+          { x:230, y:442, title:'Disc Slot', body:'A vertical slot-load drive for the physical demo disc edition. The ring around the slot glows gold while a disc is in, and fades when it ejects.' },
+          { x:292, y:486, title:'Power Light & Button', body:'One round gold button, low on the face. Press it and the emblem lights, the fan starts, and Sanctum OS opens on your library — no menus between you and the game.' },
+          { x:150, y:530, title:'Diamond-Flower Plinth', body:'The base plinth carries three golden diamond flowers — one large, two small — matching the blooms at the pillars\' feet in the emblem above.' }
+        ], {
+          tag: document.getElementById('chTag'), tagPrefix:'Part',
+          title: document.getElementById('chTitle'), body: document.getElementById('chBody')
+        });
+
+        buildHotspots('padHotspots', [
+          { x:206, y:222, title:'Left Stick — Move', body:'Fast, GTA-paced movement: walk, push to run, click to sprint. The stick is ringed in gold with a deep-gold cap, tuned so the character never feels slow or stuttery on foot.' },
+          { x:352, y:222, title:'Right Stick — Look & Orbit', body:'Camera look while you play — and in photo mode, push in until you are right up in his face: the five dots, the thunder in his eyes when he is searching. Click it to pause him standing still and orbit.' },
+          { x:440, y:152, title:'Face Buttons — Jump, Interact, Vehicle, Powers', body:'A is the gold button: jump and confirm. Y gets in and out of cars and bikes. X interacts — pick things up, open doors, start an arcade machine. B is powers: water to put a fire ride out, thunder when searching.' },
+          { x:119, y:189, title:'D-Pad — Quick Select', body:'Weapons and items at a thumb\'s reach: up for the map of Tab Atlanta, left and right to swap what is in his hands, down to hold an item up and look at it properly.' },
+          { x:280, y:120, title:'Sanctum Home Button', body:'The emblem itself, small at the controller\'s center. One press pauses the game and opens Sanctum OS; the ring of diamond flowers around it lights gold when the console is on.' },
+          { x:474, y:262, title:'Triggers — Drive & Aim', body:'Right trigger accelerates and fires, left trigger brakes and aims. In Pyron\'s fire rides they feed the flame; in Aqualis\'s water rides they feed the cold — same hands, different power.' }
+        ], {
+          tag: document.getElementById('phTag'), tagPrefix:'Control',
+          title: document.getElementById('phTitle'), body: document.getElementById('phBody')
+        });
+
+        /* ---------- Home screen ---------- */
+        var games = [
+          { name:'Liugn — 𐌻𐌹𐌿𐌲𐌽', kind:'Main Game', hero:true,
+            desc:'The full open world. Start in your house, fix it up how you like, then step out into Tab Atlanta — real Atlanta streets under new names, Bone Mountain on the horizon, traffic, police, and the whole story waiting.',
+            meta:['Open World','Tab Atlanta','Story Mode'],
+            art:'<svg width="40" height="40" viewBox="-120 -100 240 200" fill="none" stroke="currentColor" stroke-width="7"><use href="#sanctum-emblem"/></svg>' },
+          { name:'HID HUNT', kind:'Arcade · Story Path',
+            desc:'Play as HIM — or as THE MASKED ONE, the only other player who sees the whole board. Help elders across roads and groceries to porches while Grandma Rose\'s thugs log every deed and route, all the way to the Storm Gate.',
+            meta:['21 Levels','HIM / The Masked One','Storm Gate'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2 L4 14 h6 l-1 8 L18 10 h-6 Z"/></svg>' },
+          { name:'Ghost Merit', kind:'Arcade · Story Path',
+            desc:'Roam the neighborhood as Nia, Kade, or Director Okafor. Choosing a game is like choosing a character — Ghost Merit puts you in their shoes, on their streets, inside their story.',
+            meta:['Nia · Kade · Okafor','Neighborhood'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 a7 7 0 0 1 7 7 c0 3 -1 4 -1 7 H6 c0 -3 -1 -4 -1 -7 a7 7 0 0 1 7 -7 Z M9 21 h6"/></svg>' },
+          { name:'Emblem Storm', kind:'Arcade',
+            desc:'The emblem arcade cabinet from the Tab Atlanta arcade — fast rounds under the thunder, chasing the storm marks.',
+            meta:['Arcade','Thunder'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 5 l2 5 l-2 5 l-2 -5 Z"/></svg>' },
+          { name:'Diamond Head Rushes', kind:'Arcade',
+            desc:'A rush for the diamonds — the arcade version of Diamond Head Rushes, built to be picked up at a machine in the city and played on the spot.',
+            meta:['Arcade','Score Chase'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 4 h10 l3 5 l-8 11 L4 9 Z M4 9 h16 M12 20 L9 9 l3 -5 l3 5 Z"/></svg>' },
+          { name:'TheSanctumBar', kind:'Arcade · The Mine',
+            desc:'The SANCTUM bar, in game form — home of THE MINE. Step in off the street, take a seat, and play the bar\'s own game without leaving the world.',
+            meta:['Sanctum','THE MINE'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4 h14 M12 4 v6 M7 20 l3 -10 h4 l3 10 M5 20 h14"/></svg>' },
+          { name:'44bussin Arcade Shelf', kind:'Full Library',
+            desc:'Every game from 44bussin.itch.io on one shelf — Suitbound Sheeshball God, XideRoute Bumper Rails, Candy Hand Sky Race, Water Bead Luck, and the rest — each one a machine in the Tab Atlanta arcade.',
+            meta:['itch.io Library','Arcade Hall'],
+            art:'<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 12 h.01 M12 12 h.01 M16 12 h.01 M8 16 h8"/></svg>' }
+        ];
+
+        var tilesEl = document.getElementById('tiles');
+        var osTitle = document.getElementById('osTitle');
+        var osDesc = document.getElementById('osDesc');
+        var osMeta = document.getElementById('osMeta');
+        var osLaunch = document.getElementById('osLaunch');
+        var selected = 0;
+
+        games.forEach(function(gm, i){
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'tile' + (gm.hero ? ' hero-tile' : '');
+          b.setAttribute('role', 'option');
+          b.setAttribute('aria-selected', String(i === 0));
+          b.innerHTML = '<span class="tart">' + gm.art + '</span><b></b><span></span>';
+          b.querySelector('b').textContent = gm.name;
+          b.querySelector('span:last-child').textContent = gm.kind;
+          b.addEventListener('click', function(){ selectGame(i, true); });
+          tilesEl.appendChild(b);
+        });
+
+        function selectGame(i, focusTile){
+          selected = (i + games.length) % games.length;
+          var gm = games[selected];
+          tilesEl.querySelectorAll('.tile').forEach(function(t, ti){
+            t.setAttribute('aria-selected', String(ti === selected));
+          });
+          osTitle.textContent = gm.name;
+          osDesc.textContent = gm.desc;
+          osMeta.innerHTML = '';
+          gm.meta.forEach(function(m){
+            var s = document.createElement('span');
+            s.className = 'chip'; s.textContent = m;
+            osMeta.appendChild(s);
+          });
+          osLaunch.textContent = 'Launch — ' + gm.name;
+          if(focusTile){
+            var tiles = tilesEl.querySelectorAll('.tile');
+            if(tiles[selected]) tiles[selected].focus();
+          }
+        }
+        selectGame(0, false);
+
+        document.getElementById('osPrev').addEventListener('click', function(){ selectGame(selected - 1, false); });
+        document.getElementById('osNext').addEventListener('click', function(){ selectGame(selected + 1, false); });
+        tilesEl.addEventListener('keydown', function(e){
+          if(e.key === 'ArrowRight'){ e.preventDefault(); selectGame(selected + 1, true); }
+          if(e.key === 'ArrowLeft'){ e.preventDefault(); selectGame(selected - 1, true); }
+        });
+        osLaunch.addEventListener('click', function(){
+          var gm = games[selected];
+          osLaunch.textContent = 'Starting ' + gm.name + '…';
+          setTimeout(function(){ osLaunch.textContent = 'Launch — ' + gm.name; }, 1600);
+        });
+
+        /* ---------- OS clock ---------- */
+        function tickClock(){
+          var now = new Date();
+          var hh = now.getHours(), mm = now.getMinutes();
+          var ap = hh >= 12 ? 'PM' : 'AM';
+          var h12 = hh % 12; if(h12 === 0) h12 = 12;
+          document.getElementById('osClock').textContent = h12 + ':' + String(mm).padStart(2, '0') + ' ' + ap;
+          document.getElementById('osDate').textContent = now.toLocaleDateString(undefined, { weekday:'long', month:'long', day:'numeric' });
+        }
+        tickClock();
+        setInterval(tickClock, 20000);
+      })();
+    </script>
+  </body>
+</html>
